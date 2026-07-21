@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>I Stopped Comparing AI. I Started Interviewing Them. — The AI Team I'd Actually Hire</title>
+<meta name="description" content="A hiring manager's take on ChatGPT, Claude, Copilot, and Gemini — which AI to hire for which job, based on months of real engineering work, not benchmarks." />
+<meta property="og:title" content="I Stopped Comparing AI. I Started Interviewing Them." />
+<meta property="og:description" content="The AI team I'd actually hire — field notes from building real software with ChatGPT, Claude, Copilot, and Gemini." />
+<meta property="og:type" content="article" />
+<meta name="theme-color" content="#0B0C0E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+  :root{
+    --ink-0:#0B0C0E;
+    --ink-1:#15171A;
+    --ink-2:#26282C;
+    --paper:#ECEDEE;
+    --mist:#9A9DA6;
+    --accent:#D6A24C;
+    --accent-dim:rgba(214,162,76,0.14);
+    --max-prose:700px;
+    --max-wide:1120px;
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    *,*::before,*::after{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; }
+  }
+
+  body{
+    margin:0;
+    background:var(--ink-0);
+    color:var(--paper);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+
+  h1,h2,h3,h4{
+    font-family:'Space Grotesk',sans-serif;
+    color:var(--paper);
+    font-weight:600;
+    letter-spacing:-0.01em;
+    margin:0;
+  }
+
+  p{ margin:0 0 1.1em; color:var(--paper); }
+  a{ color:var(--accent); }
+  .hl{ color:var(--accent); font-weight:600; }
+
+  .visually-hidden{
+    position:absolute; width:1px; height:1px; margin:-1px; padding:0;
+    overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+  .skip-link{
+    position:fixed; top:-100px; left:12px; z-index:100;
+    background:var(--accent); color:#111; padding:10px 16px;
+    border-radius:6px; font-family:'JetBrains Mono',monospace; font-size:0.8rem;
+    transition:top 0.2s ease;
+  }
+  .skip-link:focus{ top:12px; }
+
+  a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:3px;
+    border-radius:2px;
+  }
+
+  #progressBar{
+    position:fixed; top:0; left:0; height:3px; width:0%;
+    background:var(--accent); z-index:60; transition:width 0.1s linear;
+  }
+
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    text-transform:uppercase;
+    letter-spacing:0.16em;
+    font-size:0.72rem;
+    color:var(--accent);
+    display:inline-block;
+    margin-bottom:18px;
+  }
+
+  .wrap{ max-width:var(--max-wide); margin:0 auto; padding:0 24px; }
+  .prose{ max-width:var(--max-prose); margin:0 auto; padding:0 24px; }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    min-height:94vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    padding:120px 24px 80px;
+    position:relative;
+  }
+  .hero-inner{ max-width:820px; }
+  .headline{
+    font-size:clamp(2.2rem,6vw,4.4rem);
+    line-height:1.08;
+    font-weight:600;
+  }
+  .headline .accent-word{ color:var(--accent); }
+  .subtitle{
+    margin:28px auto 0;
+    max-width:600px;
+    color:var(--mist);
+    font-size:clamp(1.02rem,2vw,1.2rem);
+    line-height:1.65;
+  }
+  .hero-meta{
+    margin-top:36px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.78rem;
+    letter-spacing:0.04em;
+    color:var(--mist);
+    display:flex;
+    gap:18px;
+    justify-content:center;
+    flex-wrap:wrap;
+  }
+  .hero-meta span::before{ content:"·"; margin-right:18px; color:var(--ink-2); }
+  .hero-meta span:first-child::before{ content:none; margin-right:0; }
+  .scroll-cue{
+    margin-top:64px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.72rem;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--mist);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+  }
+  .scroll-cue .line{
+    width:1px; height:36px; background:linear-gradient(var(--accent),transparent);
+    animation:pulseLine 2.2s ease-in-out infinite;
+  }
+  @media (prefers-reduced-motion: reduce){ .scroll-cue .line{ animation:none; } }
+  @keyframes pulseLine{ 0%,100%{ opacity:0.3; } 50%{ opacity:1; } }
+
+  /* ---------- Sections ---------- */
+  .section, .prose-section{
+    padding:88px 0;
+    border-top:1px solid var(--ink-2);
+  }
+  .prose-section > .prose{ max-width:var(--max-prose); }
+  .section-head{ margin-bottom:44px; }
+  .section-num{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.72rem;
+    color:var(--mist);
+    letter-spacing:0.1em;
+    display:block;
+    margin-bottom:10px;
+  }
+  h2.section-title{ font-size:clamp(1.6rem,3.4vw,2.3rem); }
+  .lede{ color:var(--mist); font-size:1.05rem; max-width:620px; margin-top:16px; }
+
+  .reveal{ opacity:0; transform:translateY(18px); transition:opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.in-view{ opacity:1; transform:none; }
+
+  /* ---------- Candidates ---------- */
+  .candidates-grid{
+    display:grid; grid-template-columns:repeat(2,1fr); gap:24px;
+  }
+  @media (max-width:760px){ .candidates-grid{ grid-template-columns:1fr; } }
+
+  .card{
+    background:var(--ink-1);
+    border:1px solid var(--ink-2);
+    border-radius:14px;
+    padding:32px;
+  }
+  .card-id{
+    font-family:'JetBrains Mono',monospace; font-size:0.72rem;
+    letter-spacing:0.12em; color:var(--mist);
+  }
+  .card h3{ font-size:1.55rem; margin-top:10px; }
+  .card .role{
+    font-family:'JetBrains Mono',monospace; font-size:0.78rem;
+    text-transform:uppercase; letter-spacing:0.06em; color:var(--accent);
+    margin:6px 0 18px;
+  }
+  .card .bio{ color:var(--mist); font-size:0.96rem; margin-bottom:20px; }
+  .field-label{
+    font-family:'JetBrains Mono',monospace; font-size:0.7rem;
+    text-transform:uppercase; letter-spacing:0.1em; color:var(--mist);
+    margin:16px 0 8px;
+  }
+  .field-label:first-of-type{ margin-top:0; }
+  .tag-row{ display:flex; flex-wrap:wrap; gap:7px; }
+  .tag{
+    font-family:'JetBrains Mono',monospace; font-size:0.74rem;
+    padding:4px 10px; border:1px solid var(--accent); border-radius:999px;
+    color:var(--accent); background:var(--accent-dim); font-weight:500;
+  }
+  .card .note{ color:var(--paper); font-size:0.92rem; margin:0; }
+  .card .position{
+    margin-top:20px; padding-top:18px; border-top:1px solid var(--ink-2);
+    font-size:0.92rem; color:var(--mist);
+  }
+  .card .position strong{ color:var(--paper); font-weight:500; }
+
+  /* ---------- Interview ---------- */
+  .interview-item{
+    padding:26px 0; border-bottom:1px solid var(--ink-2);
+  }
+  .interview-item:last-child{ border-bottom:none; }
+  .interview-round{
+    font-family:'JetBrains Mono',monospace; font-size:0.7rem;
+    color:var(--mist); letter-spacing:0.1em; display:block; margin-bottom:8px;
+  }
+  .interview-item h4{ font-size:1.12rem; margin-bottom:8px; }
+  .interview-item .winner{ color:var(--accent); }
+  .interview-item p{ color:var(--mist); font-size:0.98rem; }
+
+  /* ---------- Matrix ---------- */
+  .radar-wrap{ max-width:580px; height:400px; margin:0 auto 56px; }
+  .matrix-scroll{
+    overflow-x:auto; border:1px solid var(--ink-2); border-radius:12px;
+    -webkit-overflow-scrolling:touch;
+  }
+  table.matrix{ width:100%; border-collapse:collapse; min-width:760px; }
+  table.matrix th, table.matrix td{
+    padding:16px 18px; text-align:left; border-bottom:1px solid var(--ink-2); vertical-align:top;
+  }
+  table.matrix tr:last-child td{ border-bottom:none; }
+  table.matrix th{
+    font-family:'JetBrains Mono',monospace; font-size:0.7rem;
+    text-transform:uppercase; letter-spacing:0.08em; color:var(--mist);
+    background:var(--ink-1); white-space:nowrap;
+  }
+  td.cat-label{
+    font-family:'Space Grotesk',sans-serif; font-weight:500; color:var(--paper);
+    white-space:nowrap; background:var(--ink-0); position:sticky; left:0;
+  }
+  th.cat-th{ position:sticky; left:0; background:var(--ink-1); z-index:2; }
+  .signal{ display:flex; gap:3px; margin-bottom:6px; }
+  .signal i{ width:14px; height:4px; border-radius:2px; background:var(--ink-2); font-style:normal; }
+  .signal i.filled{ background:var(--accent); }
+  .cell-reason{ display:block; font-size:0.76rem; color:var(--mist); line-height:1.4; max-width:170px; }
+  .cell-role{ font-size:0.85rem; color:var(--mist); }
+  .matrix-note{ font-size:0.85rem; color:var(--mist); margin-top:16px; }
+  .matrix-hint{
+    font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:var(--mist);
+    display:none; margin-bottom:12px; letter-spacing:0.04em;
+  }
+  @media (max-width:760px){ .matrix-hint{ display:block; } }
+
+  /* ---------- Decisions ---------- */
+  .decision{ padding:26px 0; border-bottom:1px solid var(--ink-2); }
+  .decision:last-child{ border-bottom:none; }
+  .decision .q{ font-size:1.08rem; margin-bottom:14px; }
+  .stamp{
+    display:inline-block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.68rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    padding:4px 10px;
+    border:1px solid var(--accent);
+    border-radius:4px;
+    color:var(--accent);
+    background:var(--accent-dim);
+    transform:rotate(-2.5deg);
+    margin-bottom:12px;
+  }
+  .decision p{ color:var(--mist); }
+
+  /* ---------- Day in life ---------- */
+  .build-card{
+    background:var(--ink-1); border:1px solid var(--ink-2); border-radius:14px;
+    padding:30px; margin-bottom:22px;
+  }
+  .build-card:last-child{ margin-bottom:0; }
+  .build-card h4{ font-size:1.2rem; margin-bottom:16px; }
+  .roster{ list-style:none; margin:0 0 16px; padding:0; }
+  .roster li{
+    display:flex; gap:16px; padding:10px 0; border-bottom:1px dashed var(--ink-2);
+    font-size:0.94rem; color:var(--paper);
+  }
+  .roster li:last-child{ border-bottom:none; }
+  .roster .who{
+    font-family:'JetBrains Mono',monospace; color:var(--accent);
+    min-width:96px; text-transform:uppercase; font-size:0.72rem;
+    letter-spacing:0.05em; padding-top:3px; flex-shrink:0;
+  }
+  .roster li.bench .who{ color:var(--mist); }
+  .roster li.bench span:last-child{ color:var(--mist); }
+  .why-line{ font-size:0.88rem; color:var(--mist); font-style:italic; margin:0; }
+
+  /* ---------- Twist ---------- */
+  .twist .prose{ text-align:center; }
+  .twist p{ font-size:1.06rem; }
+  .twist .pull{
+    font-family:'Space Grotesk',sans-serif; font-size:clamp(1.3rem,3vw,1.7rem);
+    color:var(--accent); font-weight:500; line-height:1.35; margin:32px 0;
+  }
+
+  /* ---------- Beyond ---------- */
+  .beyond-grid{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:28px;
+  }
+  .beyond-group h5{
+    font-family:'JetBrains Mono',monospace; text-transform:uppercase;
+    font-size:0.72rem; letter-spacing:0.09em; color:var(--mist); margin:0 0 12px;
+  }
+  .beyond-group ul{ list-style:none; margin:0; padding:0; }
+  .beyond-group li{ padding:7px 0; font-size:0.95rem; border-bottom:1px solid var(--ink-2); }
+  .beyond-group li:last-child{ border-bottom:none; }
+  .beyond-group li strong{ font-weight:500; color:var(--paper); }
+  .beyond-group li span{ display:block; color:var(--mist); font-size:0.85rem; margin-top:2px; }
+
+  /* ---------- Conclusion ---------- */
+  .outro{ text-align:center; }
+  .outro .prose{ max-width:640px; }
+  .outro .final{
+    font-family:'Space Grotesk',sans-serif; font-size:clamp(1.3rem,3.2vw,1.8rem);
+    line-height:1.4; margin-top:24px;
+  }
+  .outro .final .accent-word{ color:var(--accent); }
+
+  footer{
+    border-top:1px solid var(--ink-2);
+    padding:40px 24px 60px;
+    text-align:center;
+  }
+  footer p{
+    font-family:'JetBrains Mono',monospace; font-size:0.76rem;
+    color:var(--mist); max-width:560px; margin:0 auto; line-height:1.6;
+  }
+
+  @media (max-width:640px){
+    .section, .prose-section{ padding:64px 0; }
+    .card{ padding:26px; }
+    .build-card{ padding:24px; }
+  }
+</style>
+</head>
+<body>
+
+<a href="#intro" class="skip-link">Skip to content</a>
+<div id="progressBar" role="presentation"></div>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="eyebrow">Case file — how I actually build with AI</span>
+    <h1 class="headline">I stopped comparing AI.<br>I started <span class="accent-word">interviewing</span> them.</h1>
+    <p class="subtitle">After a year of shipping real software with ChatGPT, Claude, Copilot, and Gemini, I stopped asking which one is smartest — and started asking which one I'd actually hire. This is the AI team I'd put my name behind.</p>
+    <div class="hero-meta">
+      <span>12 min read</span>
+      <span>Field notes, not a benchmark</span>
+      <span>Updated July 2026</span>
+    </div>
+  </div>
+  <div class="scroll-cue"><span class="line" aria-hidden="true"></span>Keep reading</div>
+</header>
+
+<main>
+
+  <section id="intro" class="prose-section">
+    <div class="prose reveal">
+      <p>I wasn't looking for another AI. I was looking for <em>THE</em> AI.</p>
+      <p>For a while I ran everything through one model, switching only when it let me down — a new benchmark, a friend's recommendation, whatever headline made it sound smarter than the last one. I told myself I'd eventually find the one that did everything well enough that I'd never have to think about the choice again.</p>
+      <p>That model doesn't exist. Not because these tools aren't good — they're some of the best software I've used in my career — but because "good at everything" was never really the goal. Nobody hires an engineer because they're vaguely competent at every job in the building. You hire specialists, and you put them where their specific strengths actually matter.</p>
+      <p>Somewhere around my third rewrite of the same internal tool — once with ChatGPT doing the thinking, once with Claude, once with Copilot pair-programming the whole thing — that idea stopped being a metaphor and started being how I actually work.</p>
+      <p class="hl">I stopped comparing AI. I started interviewing them.</p>
+    </div>
+  </section>
+
+  <section id="problem" class="prose-section">
+    <div class="prose reveal">
+      <span class="eyebrow">The problem</span>
+      <h2 class="section-title">Benchmarks don't know what Tuesday looks like</h2>
+      <p style="margin-top:20px;">Every few weeks, a new benchmark chart makes the rounds — a model edges out another by two percentage points on some reasoning suite, and for a day it gets treated like a coronation. I used to pay close attention to these. I don't anymore, not because they're fake, but because they don't describe the parts of my job where I actually spend time.</p>
+      <p>A benchmark doesn't know that Tuesday's task is untangling a half-written API contract, that Wednesday is a client-facing whitepaper due at 5pm, or that Thursday is spent alone in a terminal, three hours deep in a bug that only shows up in production. Those days call for different kinds of thinking, and "highest average score" is <span class="hl">a strange way to hire</span> for any one of them.</p>
+      <p>What actually predicts whether an AI helps me is closer to what predicts whether a new hire works out: how it handles ambiguity, whether it asks the right follow-up question, whether its first draft saves me time or creates more editing work than I started with.</p>
+      <p>None of that shows up on a leaderboard. It shows up after the fortieth prompt, in the small moments where a tool either gets out of your way or gets in it. So this isn't a benchmark comparison. It's closer to reference notes — the kind you'd hand a colleague who asked, "so which one should I actually use?"</p>
+    </div>
+  </section>
+
+  <section id="candidates" class="section">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="section-num">01 — Meet the candidates</span>
+        <h2 class="section-title">Four resumes, four very different people</h2>
+        <p class="lede">Here's how I'd introduce them if they walked into a hiring panel together.</p>
+      </div>
+
+      <div class="candidates-grid">
+
+        <div class="card reveal">
+          <span class="card-id">AI-01 / Applicant</span>
+          <h3>ChatGPT</h3>
+          <p class="role">Suggested role — Principal Architect</p>
+          <p class="bio">ChatGPT is who I loop in when a project doesn't have a shape yet. Hand it a vague idea and it'll ask good clarifying questions, sketch three ways to structure the system, and cheerfully argue with itself about tradeoffs until you've actually got a plan.</p>
+          <p class="field-label">Strengths</p>
+          <div class="tag-row"><span class="tag">Brainstorming</span><span class="tag">Architecture</span><span class="tag">Teaching</span><span class="tag">Planning</span><span class="tag">Balanced reasoning</span></div>
+          <p class="field-label">Weaknesses</p>
+          <p class="note">Can gold-plate a solution if you don't rein it in — left alone, it'll design a system for ten million users when you have four hundred.</p>
+          <p class="field-label">Best for</p>
+          <p class="note">Kicking off a new project, working through an ambiguous problem, explaining a concept to a junior engineer.</p>
+          <p class="position">Ideal team position: <strong>Principal Architect</strong> — draws the whiteboard diagram everyone else builds from.</p>
+        </div>
+
+        <div class="card reveal">
+          <span class="card-id">AI-02 / Applicant</span>
+          <h3>Claude</h3>
+          <p class="role">Suggested role — Senior Technical Writer</p>
+          <p class="bio">Claude is who I hand things to once they actually need to be understood by another human. Documentation that reads like documentation instead of a transcript, a whitepaper with a real argument, structured markdown that doesn't need three passes of cleanup.</p>
+          <p class="field-label">Strengths</p>
+          <div class="tag-row"><span class="tag">Documentation</span><span class="tag">Whitepapers</span><span class="tag">Long-form writing</span><span class="tag">Structured thinking</span></div>
+          <p class="field-label">Weaknesses</p>
+          <p class="note">Code quality is good, sometimes very good — but I've seen it swing more than I'd like across a big, messy codebase.</p>
+          <p class="field-label">Best for</p>
+          <p class="note">Writing the docs you'll actually publish, drafting a whitepaper, thinking through something with real nuance and no clean answer.</p>
+          <p class="position">Ideal team position: <strong>Senior Technical Writer</strong> — also the one you want in the room when the argument itself needs to hold up.</p>
+        </div>
+
+        <div class="card reveal">
+          <span class="card-id">AI-03 / Applicant</span>
+          <h3>GitHub Copilot</h3>
+          <p class="role">Suggested role — Senior Software Engineer</p>
+          <p class="bio">Copilot doesn't want to talk about your system design. It wants to be in the file, next to the cursor, finishing the line you're already writing. Half the time I'm not really "prompting" it — I'm just typing and letting it keep up.</p>
+          <p class="field-label">Strengths</p>
+          <div class="tag-row"><span class="tag">In-editor coding</span><span class="tag">Refactoring</span><span class="tag">IDE integration</span><span class="tag">Developer productivity</span></div>
+          <p class="field-label">Weaknesses</p>
+          <p class="note">Ask it to think about anything outside the IDE — strategy, writing, planning — and you'll feel it reaching for tools it wasn't built to hold.</p>
+          <p class="field-label">Best for</p>
+          <p class="note">Writing and refactoring real code, staying in flow during implementation, catching the boring bugs before you do.</p>
+          <p class="position">Ideal team position: <strong>Senior Software Engineer</strong> — heads-down, high output, exactly where you want your strongest implementer.</p>
+        </div>
+
+        <div class="card reveal">
+          <span class="card-id">AI-04 / Applicant</span>
+          <h3>Gemini</h3>
+          <p class="role">Suggested role — Research Engineer</p>
+          <p class="bio">Gemini is fast, plugged into everything Google touches, and comfortable holding a huge amount of material in its head at once. When I need to pull together research from a pile of documents, it's usually the first one I open.</p>
+          <p class="field-label">Strengths</p>
+          <div class="tag-row"><span class="tag">Long context</span><span class="tag">Fast experimentation</span><span class="tag">Google ecosystem</span><span class="tag">Research synthesis</span></div>
+          <p class="field-label">Weaknesses</p>
+          <p class="note">Output can feel a little generic until you give it more explicit direction than the others need.</p>
+          <p class="field-label">Best for</p>
+          <p class="note">Digging through a stack of long documents, quick prototyping, research that touches the Google ecosystem.</p>
+          <p class="position">Ideal team position: <strong>Research Engineer</strong> — comes back from the library with everything you need, even if you have to shape it yourself.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="interview" class="prose-section">
+    <div class="prose">
+      <div class="section-head reveal">
+        <span class="section-num">02 — The interview</span>
+        <h2 class="section-title">Five rounds that told me more than any leaderboard</h2>
+        <p class="lede">Not every category made the cut for a full write-up — the complete scorecard is next. These are the five rounds where the reasoning mattered enough to spell out.</p>
+      </div>
+
+      <div class="interview-item reveal">
+        <span class="interview-round">Round 01 — System architecture</span>
+        <h4>Winner: <span class="winner">ChatGPT</span></h4>
+        <p>When I'm staring at a blank page trying to figure out how the pieces of a system should talk to each other, ChatGPT is who I bring in first. It's comfortable holding several structural options in mind at once and will actually defend the ones it thinks are wrong — which is more useful than it sounds. <span class="hl">Arguing with a bad idea is often how you find the good one.</span></p>
+      </div>
+
+      <div class="interview-item reveal">
+        <span class="interview-round">Round 02 — Coding</span>
+        <h4>Winner: <span class="winner">Copilot</span></h4>
+        <p>For actually writing and shipping code, Copilot wins by a wide margin, but only inside the editor. Its advantage isn't raw code quality — Claude and ChatGPT can both write clean code — it's proximity. It sees what you're doing in real time, which means <span class="hl">less re-explaining and more just building</span>.</p>
+      </div>
+
+      <div class="interview-item reveal">
+        <span class="interview-round">Round 03 — Documentation</span>
+        <h4>Winner: <span class="winner">Claude</span></h4>
+        <p>This one isn't close. Claude writes documentation like someone who has read a lot of good documentation. It keeps structure without forcing it, and it's the only one of the four I trust with something long enough to <span class="hl">actually get lost in</span>, like a full whitepaper.</p>
+      </div>
+
+      <div class="interview-item reveal">
+        <span class="interview-round">Round 04 — Debugging</span>
+        <h4>Winner: <span class="winner">Copilot</span></h4>
+        <p>Copilot spots the obvious stuff fast — the typo, the off-by-one, the missing await. When a bug is actually structural, something wrong three layers up from where it's showing symptoms, ChatGPT's willingness to reason through a whole system tends to get there first instead. <span class="hl">But for the bug you'll hit ten times a day, Copilot wins.</span></p>
+      </div>
+
+      <div class="interview-item reveal">
+        <span class="interview-round">Round 05 — Long context handling</span>
+        <h4>Winner: <span class="winner">Gemini</span></h4>
+        <p>Gemini is the one I reach for when I need to throw an entire folder of documents at something and ask what's actually going on in there. <span class="hl">It doesn't lose the thread</span> the way the others sometimes do once a conversation gets long.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="matrix" class="section">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="section-num">03 — Capability matrix</span>
+        <h2 class="section-title">The full scorecard, all twelve categories</h2>
+        <p class="lede">Every mark below comes with the one-line reason behind it — no bare scores. Segments are relative to these four candidates only, not an absolute scale.</p>
+      </div>
+
+      <div class="radar-wrap reveal">
+        <canvas id="capabilityRadar" role="img" aria-label="Radar chart comparing ChatGPT, Claude, Copilot, and Gemini across architecture, coding, writing and docs, research, debugging, and productivity"></canvas>
+      </div>
+
+      <p class="matrix-hint reveal">Scroll sideways to see all four candidates →</p>
+
+      <div class="matrix-scroll reveal">
+        <table class="matrix">
+          <thead>
+            <tr>
+              <th class="cat-th">Category</th>
+              <th>ChatGPT</th>
+              <th>Claude</th>
+              <th>Copilot</th>
+              <th>Gemini</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td class="cat-label">System Architecture</td>
+              <td><span class="signal">[[SIGNAL:5]]</span><span class="cell-reason">Best structural + tradeoff thinking</span></td>
+              <td><span class="signal">[[SIGNAL:4]]</span><span class="cell-reason">Strong structured reasoning</span></td>
+              <td><span class="signal">[[SIGNAL:2]]</span><span class="cell-reason">Not built for planning</span></td>
+              <td><span class="signal">[[SIGNAL:3]]</span><span class="cell-reason">Solid, less opinionated</span></td>
+            </tr>
+
+            <tr>
+              <td class="cat-label">Coding</td>
+              <td><span class="signal">[[SIGNAL:4]]</span><span class="cell-reason">Clean code, no IDE proximity</span></td>
+              <td><span class="signal">[[SIGNAL:3]]</span><span class="cell-reason">Good, variable on messy repos</span></td>
+              <td><span class="signal">[[SIGNAL:5]]</span><span class="cell-reason">Lives in the editor</span></td>
+              <td><span class="signal">[[SIGNAL:3]]</span><span class="cell-reason">Fine, rarely first choice</span></td>
+            </tr>
+
+            <tr>
+              <td class="cat-label">Documentation</td>
+              <td><span class="signal">[[SIGNAL:3]]</span><span class="cell-reason">Decent, needs an edit pass</span></td>
+              <td><span class="signal">[[SIGNAL:5]]</span><span class="cell-reason">Reads like real documentation</span></td>
+              <td><span class="signal">[[SIGNAL:2]]</span><span class="cell-reason">Not really its job</span></td>
+              <td><span class="signal">[[SIGNAL:3]]</span><span class="cell-reason">Serviceable, generic tone</span></td>
+            </tr>
+
+            <tr>
+              <td class="cat-label">Brainstorming</td>
+              <td><span class="signal">[[SIGNAL:5]]</span><span class="cell-reason">Argues with itself productively</span></td>
+              <td><span class="signal">[[SIGNAL:4]]</span><span class="cell-reason">Thoughtful, more measured</span></td>
+              <td><span class="signal">[[SIGNAL:2]]</span><span class="cell-reason">Wrong tool for this</span></td>
+              <td><span class="signal">[[SIGNAL:4]]</span><span class="cell-reason">Fast, wide idea net</span></td>
+            </tr>
+
+            <tr>
+              <td class="cat-label">Research</td>
+              <td><span class="signal">[[SIGNAL:4]]</span><span class="cell-reason">Good synthesis, smaller context</span></td>
+              <td><span class="signal">[[SIGNAL:3]]</span><span class="cell-reason">Careful but slower going</span></td>
+              <td><span class="signal">[[SIGNAL:2]]</span><span class="cell-reason">Not a research tool</span></td>
+              <td><span class="signal">[[SIGNAL:5]]</span><span class="cell-reason">Best at digesting a document pile</span></td>
+            </tr>
+
+            <tr>
+              <td class="cat-label">UI Generation</td>
+              <td><span class="signal">[[SIGNAL:3]]</span><span class="cell-reason">Decent defaults, needs direction</span></td>
+              <td><span class="signal">[[SIGNAL:3]]</span><span class="cell-reason">Same — not a specialist</span></td>
+              <td><span class="signal">[[SIGNAL:3]]</span><span class="cell-reason">Only inside component code</span></td>
+              <td><span class="signal">[[SIGNAL:3]]</span><span class="cell-reason">No clear edge here</span></td>
+            </tr>
+
+            <tr>
+              <td class="cat-label">Debugging</td>
+              <td><span class="signal">[[SIGNAL:4]]</span><span class="cell-reason">Better for structural bugs</span></td>
+              <td><span class="signal">[[SIGNAL:3]]</span><span class="cell-reason">Careful, sometimes slow</span></td>
+              <td><span class="signal">[[SIGNAL:5]]</span><span class="cell-reason">Catches the obvious fast</span></td>
+              <td><span class="signal">[[SIGNAL:3]]</span><span class="cell-reason">Fine for isolated issues</span></td>
+            </tr>
+
+            <tr>
+              <td class="cat-label">Long Context Handling</td>
+              <td><span class="signal">[[SIGNAL:3]]</span><span class="cell-reason">Fine, shorter effective range</span></td>
+              <td><span class="signal">[[SIGNAL:4]]</span><span class="cell-reason">Strong across long documents</span></td>
+              <td><span class="signal">[[SIGNAL:2]]</span><span class="cell-reason">Not built for this</span></td>
+              <td><span class="signal">[[SIGNAL:5]]</span><span class="cell-reason">Doesn't lose the thread</span></td>
+            </tr>
+
+            <tr>
+              <td class="cat-label">Learning Support</td>
+              <td><span class="signal">[[SIGNAL:5]]</span><span class="cell-reason">Best at explaining the "why"</span></td>
+              <td><span class="signal">[[SIGNAL:4]]</span><span class="cell-reason">Clear, a little formal</span></td>
+              <td><span class="signal">[[SIGNAL:2]]</span><span class="cell-reason">Shows, doesn't explain</span></td>
+              <td><span class="signal">[[SIGNAL:3]]</span><span class="cell-reason">Fast answers, less depth</span></td>
+            </tr>
+
+            <tr>
+              <td class="cat-label">Daily Productivity</td>
+              <td><span class="signal">[[SIGNAL:4]]</span><span class="cell-reason">Great default assistant</span></td>
+              <td><span class="signal">[[SIGNAL:3]]</span><span class="cell-reason">Best saved for deeper work</span></td>
+              <td><span class="signal">[[SIGNAL:5]]</span><span class="cell-reason">Fewest interruptions to flow</span></td>
+              <td><span class="signal">[[SIGNAL:4]]</span><span class="cell-reason">Fast for quick tasks</span></td>
+            </tr>
+
+            <tr>
+              <td class="cat-label">Enterprise Readiness</td>
+              <td><span class="signal">[[SIGNAL:3]]</span><span class="cell-reason">Capable, less embedded</span></td>
+              <td><span class="signal">[[SIGNAL:4]]</span><span class="cell-reason">Solid data-handling posture</span></td>
+              <td><span class="signal">[[SIGNAL:5]]</span><span class="cell-reason">Deep GitHub/enterprise tooling</span></td>
+              <td><span class="signal">[[SIGNAL:4]]</span><span class="cell-reason">Strong Workspace integration</span></td>
+            </tr>
+
+            <tr>
+              <td class="cat-label">Ideal Position</td>
+              <td class="cell-role">Principal Architect</td>
+              <td class="cell-role">Senior Technical Writer</td>
+              <td class="cell-role">Senior Software Engineer</td>
+              <td class="cell-role">Research Engineer</td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+      <p class="matrix-note reveal"><span class="hl">Nobody wins every category</span> — that's the point of the whole article, not a scoring bug. UI Generation has no clear leader among these four on purpose; that's a different hire, covered further down.</p>
+    </div>
+  </section>
+
+  <section id="decisions" class="section">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="section-num">04 — Hiring decisions</span>
+        <h2 class="section-title">Real scenarios, real picks</h2>
+        <p class="lede">The matrix is useful, but hiring decisions are made on real jobs, not spreadsheets. Here's how I'd actually staff four of them.</p>
+      </div>
+
+      <div class="decision reveal">
+        <p class="q">If I needed someone to write a whitepaper...</p>
+        <span class="stamp">Hired: Claude</span>
+        <p>A whitepaper lives or dies on structure and argument, not just prose quality. Claude holds a long document's shape better than the other three, which means less time reorganizing and more time actually sharpening the point.</p>
+      </div>
+
+      <div class="decision reveal">
+        <p class="q">If I needed to build production code...</p>
+        <span class="stamp">Hired: Copilot</span>
+        <p>Once there's a plan, I want the fastest path from decision to working code, with the fewest context switches. That's Copilot, sitting in the editor the whole time. (ChatGPT usually writes the plan it's executing — more on that below.)</p>
+      </div>
+
+      <div class="decision reveal">
+        <p class="q">If I needed help architecting a distributed system...</p>
+        <span class="stamp">Hired: ChatGPT</span>
+        <p>This is the job that rewards someone willing to hold five bad ideas in their head just to find the one good one. ChatGPT will actually push back on your first instinct, which is exactly what you want before you commit to a system design.</p>
+      </div>
+
+      <div class="decision reveal">
+        <p class="q">If I wanted help brainstorming a startup idea...</p>
+        <span class="stamp">Hired: ChatGPT</span>
+        <p>Same instinct as architecture, different domain. It's comfortable being wrong out loud, which is what a real brainstorm needs. I'll usually bring Gemini in afterward to check what's already out there before getting too attached to anything.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="daylife" class="section">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="section-num">05 — Real builds, real teams</span>
+        <h2 class="section-title">What the full roster actually looks like on a project</h2>
+        <p class="lede">Individual picks are useful, but most real work needs more than one hire. Here's the team lineup for three projects I've actually shipped.</p>
+      </div>
+
+      <div class="build-card reveal">
+        <h4>Shipping a SaaS MVP in a weekend</h4>
+        <ul class="roster">
+          <li><span class="who">Planning</span><span>ChatGPT breaks the idea into an actual scope, picks the stack, and flags the two decisions that'll be expensive to reverse later.</span></li>
+          <li><span class="who">Building</span><span>Copilot writes and refactors the real code once the plan exists, staying in the editor the whole way.</span></li>
+          <li><span class="who">Writing</span><span>Claude drafts the README, the API docs, and the one-pager you'll actually send to your first users.</span></li>
+          <li><span class="who">Research</span><span>Gemini pulls together what three competitors are already doing, fast, so you're not guessing.</span></li>
+        </ul>
+        <p class="why-line">Why this team: nobody here is doing someone else's job. <span class="hl">That's the whole point.</span></p>
+      </div>
+
+      <div class="build-card reveal">
+        <h4>Writing a technical whitepaper for a client</h4>
+        <ul class="roster">
+          <li><span class="who">Lead writer</span><span>Claude owns the structure and the argument from first draft to final pass.</span></li>
+          <li><span class="who">Sparring</span><span>ChatGPT stress-tests the argument before it goes to the client, poking holes in the weak sections.</span></li>
+          <li><span class="who">Research</span><span>Gemini gathers the supporting data and anything time-sensitive that needs to be current.</span></li>
+          <li class="bench"><span class="who">Bench</span><span>Copilot — this isn't a writing job, so it sits this one out.</span></li>
+        </ul>
+        <p class="why-line">Why this team: <span class="hl">good writing needs one clear owner, not a committee.</span> Everyone else is here to make the owner's draft better, not to write their own version.</p>
+      </div>
+
+      <div class="build-card reveal">
+        <h4>Fixing a production bug at 2am</h4>
+        <ul class="roster">
+          <li><span class="who">First look</span><span>Copilot is right there in the file, fastest feedback loop, catches what's obvious before you've finished your coffee.</span></li>
+          <li><span class="who">Escalation</span><span>ChatGPT gets called in if the bug turns out to be structural — something wrong three layers up from where it's showing symptoms.</span></li>
+          <li><span class="who">Postmortem</span><span>Claude writes up what happened once it's fixed, while it's still fresh.</span></li>
+          <li class="bench"><span class="who">Bench</span><span>Gemini — nothing here needs a document pile or a Google integration tonight.</span></li>
+        </ul>
+        <p class="why-line">Why this team: half of good debugging is knowing which of these four to open first. <span class="hl">The other half is caffeine.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="twist" class="prose-section twist">
+    <div class="prose reveal">
+      <span class="eyebrow">The plot twist</span>
+      <p>Here's the thing I didn't expect going in: there is no perfect hire.</p>
+      <p>Every one of these four is genuinely excellent at part of the job and genuinely mediocre at the rest of it. ChatGPT will out-architect anyone in the room and then hand you documentation you'll want to rewrite. Claude will write a whitepaper you're proud to send and then need a second pass on a gnarly recursive function. Copilot will out-produce all three of them on a Tuesday afternoon and have nothing useful to say about your five-year architecture. Gemini will read a hundred documents faster than you can open them and then need more hand-holding on anything that requires a strong opinion.</p>
+      <p class="pull">None of that is a flaw to fix. It's just what specialization looks like.</p>
+      <p>The engineers I respect most didn't get that way by being equally good at everything — they got good at knowing who to ask. Turns out the same is true for AI. The upgrade isn't a smarter model. It's a better team.</p>
+    </div>
+  </section>
+
+  <section id="beyond" class="section">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="section-num">06 — Beyond the LLMs</span>
+        <h2 class="section-title">The rest of the bench</h2>
+        <p class="lede">The four candidates above cover most of what I do day to day, but they're not the whole roster. A few specialists earn a seat when the job is narrow enough to want one.</p>
+      </div>
+
+      <div class="beyond-grid reveal">
+        <div class="beyond-group">
+          <h5>Research</h5>
+          <ul><li><strong>Perplexity</strong><span>For research that needs citations attached, not just an answer.</span></li></ul>
+        </div>
+        <div class="beyond-group">
+          <h5>Coding</h5>
+          <ul>
+            <li><strong>Cursor</strong><span>For when you want the AI living inside the whole editor, not just the completion.</span></li>
+            <li><strong>Windsurf</strong><span>Same idea, different feel — worth trying both.</span></li>
+          </ul>
+        </div>
+        <div class="beyond-group">
+          <h5>Design</h5>
+          <ul>
+            <li><strong>Figma AI</strong><span>For turning an idea into something closer to a real interface.</span></li>
+            <li><strong>v0</strong><span>For going straight from prompt to working UI.</span></li>
+          </ul>
+        </div>
+        <div class="beyond-group">
+          <h5>Project management</h5>
+          <ul><li><strong>Notion AI</strong><span>For keeping the plan and the writing in the same place.</span></li></ul>
+        </div>
+        <div class="beyond-group">
+          <h5>Automation</h5>
+          <ul><li><strong>n8n</strong><span>For wiring the rest of the team together so it runs without you.</span></li></ul>
+        </div>
+        <div class="beyond-group">
+          <h5>Video</h5>
+          <ul><li><strong>Runway</strong><span>For anything that needs to move.</span></li></ul>
+        </div>
+        <div class="beyond-group">
+          <h5>Calendar</h5>
+          <ul><li><strong>Motion AI</strong><span>For defending your calendar from your own optimism.</span></li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="conclusion" class="prose-section outro">
+    <div class="prose reveal">
+      <span class="eyebrow">Conclusion</span>
+      <p>So — which AI is the best?</p>
+      <p>Wrong question. I hope that's clear by now, if it wasn't already.</p>
+      <p>The future everyone keeps describing isn't one model that replaces you. It's a small team — some of it human, some of it not — where every member is doing the part of the job they're actually good at, and nobody's pretending to be a generalist they're not.</p>
+      <p>I stopped looking for the smartest AI a while ago. I built a team instead. Yours won't look exactly like mine — your work is different, your taste is different, and part of this list will probably change again by the time you read it. That's fine. <span class="hl">Interview them yourself.</span></p>
+      <p class="final">The future isn't replacing yourself with <span class="accent-word">one</span> AI.<br>The future is building the right AI <span class="accent-word">team</span>.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>These are field notes from one engineer's workflow, not a lab benchmark — every score above comes with its reasoning, but your stack, your projects, and your taste will shift the roster. Written from hands-on use, current as of July 2026.</p>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Scroll progress bar
+  var progressBar = document.getElementById("progressBar");
+  function updateProgress() {
+    var scrollTop = window.scrollY || document.documentElement.scrollTop;
+    var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    var pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    if (progressBar) progressBar.style.width = pct + "%";
+  }
+  window.addEventListener("scroll", updateProgress, { passive: true });
+  updateProgress();
+
+  // Scroll reveal
+  var revealEls = document.querySelectorAll(".reveal");
+  if (!prefersReducedMotion && "IntersectionObserver" in window) {
+    var io = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("in-view");
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
+    );
+    revealEls.forEach(function (el) {
+      io.observe(el);
+    });
+  } else {
+    revealEls.forEach(function (el) {
+      el.classList.add("in-view");
+    });
+  }
+
+  // Render signal-bar placeholders as accessible tick indicators
+  document.querySelectorAll(".signal").forEach(function (el) {
+    var match = el.textContent.match(/\[\[SIGNAL:(\d)\]\]/);
+    var score = match ? parseInt(match[1], 10) : 0;
+    el.textContent = "";
+    el.setAttribute("role", "img");
+    el.setAttribute("aria-label", score + " out of 5");
+    for (var i = 1; i <= 5; i++) {
+      var tick = document.createElement("i");
+      if (i <= score) tick.className = "filled";
+      el.appendChild(tick);
+    }
+  });
+
+  // Capability radar chart
+  function initChart() {
+    var canvas = document.getElementById("capabilityRadar");
+    if (!canvas || typeof Chart === "undefined") return;
+    var ctx = canvas.getContext("2d");
+    var gridColor = "rgba(236,237,238,0.08)";
+    var labelColor = "#ECEDEE";
+    var mutedColor = "#9A9DA6";
+
+    Chart.defaults.font.family = "'Inter', sans-serif";
+
+    new Chart(ctx, {
+      type: "radar",
+      data: {
+        labels: ["Architecture", "Coding", "Writing & Docs", "Research", "Debugging", "Productivity"],
+        datasets: [
+          {
+            label: "ChatGPT",
+            data: [5, 4, 3, 4, 4, 4],
+            borderColor: "#D6A24C",
+            backgroundColor: "rgba(214,162,76,0.08)",
+            pointBackgroundColor: "#D6A24C",
+            borderWidth: 2,
+            pointRadius: 3,
+            fill: false
+          },
+          {
+            label: "Claude",
+            data: [4, 3, 5, 3, 3, 3],
+            borderColor: "#ECEDEE",
+            backgroundColor: "rgba(236,237,238,0.05)",
+            pointBackgroundColor: "#ECEDEE",
+            borderWidth: 2,
+            borderDash: [6, 3],
+            pointRadius: 3,
+            fill: false
+          },
+          {
+            label: "Copilot",
+            data: [2, 5, 1, 2, 5, 5],
+            borderColor: "#9A9DA6",
+            backgroundColor: "rgba(154,157,166,0.05)",
+            pointBackgroundColor: "#9A9DA6",
+            borderWidth: 2,
+            borderDash: [2, 2],
+            pointRadius: 3,
+            fill: false
+          },
+          {
+            label: "Gemini",
+            data: [3, 3, 3, 5, 3, 4],
+            borderColor: "#6B7280",
+            backgroundColor: "rgba(107,114,128,0.05)",
+            pointBackgroundColor: "#6B7280",
+            borderWidth: 2,
+            borderDash: [1, 3],
+            pointRadius: 3,
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: prefersReducedMotion ? false : { duration: 700 },
+        scales: {
+          r: {
+            angleLines: { color: gridColor },
+            grid: { color: gridColor },
+            pointLabels: {
+              color: labelColor,
+              font: { family: "'Space Grotesk', sans-serif", size: 11 }
+            },
+            ticks: { display: false, stepSize: 1 },
+            suggestedMin: 0,
+            suggestedMax: 5
+          }
+        },
+        plugins: {
+          legend: {
+            position: "bottom",
+            labels: {
+              color: mutedColor,
+              usePointStyle: true,
+              pointStyle: "line",
+              font: { family: "'JetBrains Mono', monospace", size: 11 },
+              padding: 16
+            }
+          },
+          tooltip: {
+            backgroundColor: "#16171A",
+            titleColor: "#ECEDEE",
+            bodyColor: "#9A9DA6",
+            borderColor: "#26282C",
+            borderWidth: 1,
+            padding: 10
+          }
+        }
+      }
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initChart);
+  } else {
+    initChart();
+  }
+})();
+</script>
+
+</body>
+</html>
