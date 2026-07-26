@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>I Stopped Comparing AI. I Started Interviewing Them. — The AI Team I'd Actually Hire</title>
-<meta name="description" content="A hiring manager's take on ChatGPT, Claude, Copilot, and Gemini — which AI to hire for which job, based on months of real engineering work, not benchmarks." />
-<meta property="og:title" content="I Stopped Comparing AI. I Started Interviewing Them." />
-<meta property="og:description" content="The AI team I'd actually hire — field notes from building real software with ChatGPT, Claude, Copilot, and Gemini." />
+<title>The AI Team I'd Actually Hire</title>
+<meta name="description" content="A hiring manager's take on the AI tools I actually use — general engineering work and security work, tested and scored like job candidates, not benchmarks." />
+<meta property="og:title" content="The AI Team I'd Actually Hire" />
+<meta property="og:description" content="Field notes from building real software and doing real security work with ChatGPT, Claude, Copilot, and Gemini." />
 <meta property="og:type" content="article" />
 <meta name="theme-color" content="#0B0C0E" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -91,33 +91,75 @@
   .wrap{ max-width:var(--max-wide); margin:0 auto; padding:0 24px; }
   .prose{ max-width:var(--max-prose); margin:0 auto; padding:0 24px; }
 
+  /* ---------- Series masthead ---------- */
+  .masthead{
+    padding:70px 24px 0;
+    text-align:center;
+  }
+  .masthead-inner{ max-width:820px; margin:0 auto; }
+  .series-title{
+    font-size:clamp(1.7rem,4.4vw,2.6rem);
+    line-height:1.15;
+  }
+  .series-title .accent-word{ color:var(--accent); }
+  .series-sub{
+    margin:18px auto 0;
+    max-width:560px;
+    color:var(--mist);
+    font-size:1rem;
+  }
+
+  /* ---------- Topic switcher ---------- */
+  .topic-switcher{
+    position:sticky; top:0; z-index:50;
+    background:rgba(11,12,14,0.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--ink-2);
+    margin-top:56px;
+  }
+  .topic-switcher-inner{
+    max-width:var(--max-wide); margin:0 auto; padding:0 24px;
+    display:flex; gap:8px; justify-content:center; flex-wrap:wrap;
+  }
+  .topic-btn{
+    appearance:none; background:transparent; border:none;
+    font-family:'JetBrains Mono',monospace; font-size:0.76rem;
+    text-transform:uppercase; letter-spacing:0.08em;
+    color:var(--mist); padding:18px 20px; cursor:pointer;
+    border-bottom:2px solid transparent;
+    transition:color 0.15s ease, border-color 0.15s ease;
+  }
+  .topic-btn:hover{ color:var(--paper); }
+  .topic-btn[aria-selected="true"]{
+    color:var(--accent); border-bottom-color:var(--accent);
+  }
+
   /* ---------- Hero ---------- */
   .hero{
-    min-height:94vh;
     display:flex;
     flex-direction:column;
     justify-content:center;
     align-items:center;
     text-align:center;
-    padding:120px 24px 80px;
+    padding:80px 24px 60px;
     position:relative;
   }
   .hero-inner{ max-width:820px; }
   .headline{
-    font-size:clamp(2.2rem,6vw,4.4rem);
-    line-height:1.08;
+    font-size:clamp(2rem,5.4vw,3.8rem);
+    line-height:1.1;
     font-weight:600;
   }
   .headline .accent-word{ color:var(--accent); }
   .subtitle{
-    margin:28px auto 0;
+    margin:26px auto 0;
     max-width:600px;
     color:var(--mist);
-    font-size:clamp(1.02rem,2vw,1.2rem);
+    font-size:clamp(1.02rem,2vw,1.15rem);
     line-height:1.65;
   }
   .hero-meta{
-    margin-top:36px;
+    margin-top:32px;
     font-family:'JetBrains Mono',monospace;
     font-size:0.78rem;
     letter-spacing:0.04em;
@@ -129,28 +171,10 @@
   }
   .hero-meta span::before{ content:"·"; margin-right:18px; color:var(--ink-2); }
   .hero-meta span:first-child::before{ content:none; margin-right:0; }
-  .scroll-cue{
-    margin-top:64px;
-    font-family:'JetBrains Mono',monospace;
-    font-size:0.72rem;
-    letter-spacing:0.12em;
-    text-transform:uppercase;
-    color:var(--mist);
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:10px;
-  }
-  .scroll-cue .line{
-    width:1px; height:36px; background:linear-gradient(var(--accent),transparent);
-    animation:pulseLine 2.2s ease-in-out infinite;
-  }
-  @media (prefers-reduced-motion: reduce){ .scroll-cue .line{ animation:none; } }
-  @keyframes pulseLine{ 0%,100%{ opacity:0.3; } 50%{ opacity:1; } }
 
   /* ---------- Sections ---------- */
   .section, .prose-section{
-    padding:88px 0;
+    padding:80px 0;
     border-top:1px solid var(--ink-2);
   }
   .prose-section > .prose{ max-width:var(--max-prose); }
@@ -169,11 +193,24 @@
   .reveal{ opacity:0; transform:translateY(18px); transition:opacity 0.7s ease, transform 0.7s ease; }
   .reveal.in-view{ opacity:1; transform:none; }
 
-  /* ---------- Candidates ---------- */
-  .candidates-grid{
-    display:grid; grid-template-columns:repeat(2,1fr); gap:24px;
+  /* ---------- Callout (security topic) ---------- */
+  .callout{
+    background:var(--ink-1); border:1px solid var(--accent); border-radius:12px;
+    padding:24px 28px; margin:28px 0;
   }
-  @media (max-width:760px){ .candidates-grid{ grid-template-columns:1fr; } }
+  .callout p{ color:var(--paper); margin:0; font-size:0.98rem; }
+  .callout .tag-label{
+    font-family:'JetBrains Mono',monospace; font-size:0.68rem; text-transform:uppercase;
+    letter-spacing:0.1em; color:var(--accent); display:block; margin-bottom:10px;
+  }
+
+  /* ---------- Candidates ---------- */
+  .candidates-grid{ display:grid; gap:24px; }
+  #topic-general .candidates-grid{ grid-template-columns:repeat(2,1fr); }
+  @media (max-width:760px){ #topic-general .candidates-grid{ grid-template-columns:1fr; } }
+  #topic-security .candidates-grid{ grid-template-columns:repeat(3,1fr); }
+  @media (max-width:980px){ #topic-security .candidates-grid{ grid-template-columns:1fr 1fr; } }
+  @media (max-width:640px){ #topic-security .candidates-grid{ grid-template-columns:1fr; } }
 
   .card{
     background:var(--ink-1);
@@ -226,11 +263,14 @@
 
   /* ---------- Matrix ---------- */
   .radar-wrap{ max-width:580px; height:400px; margin:0 auto 56px; }
+  .chart-wrap{ max-width:640px; height:380px; margin:0 auto 56px; }
   .matrix-scroll{
     overflow-x:auto; border:1px solid var(--ink-2); border-radius:12px;
     -webkit-overflow-scrolling:touch;
   }
-  table.matrix{ width:100%; border-collapse:collapse; min-width:760px; }
+  table.matrix{ width:100%; border-collapse:collapse; }
+  #topic-general table.matrix{ min-width:760px; }
+  #topic-security table.matrix{ min-width:560px; }
   table.matrix th, table.matrix td{
     padding:16px 18px; text-align:left; border-bottom:1px solid var(--ink-2); vertical-align:top;
   }
@@ -245,10 +285,12 @@
     white-space:nowrap; background:var(--ink-0); position:sticky; left:0;
   }
   th.cat-th{ position:sticky; left:0; background:var(--ink-1); z-index:2; }
+  tr.priority td.cat-label{ color:var(--accent); }
+  tr.priority{ background:var(--accent-dim); }
   .signal{ display:flex; gap:3px; margin-bottom:6px; }
   .signal i{ width:14px; height:4px; border-radius:2px; background:var(--ink-2); font-style:normal; }
   .signal i.filled{ background:var(--accent); }
-  .cell-reason{ display:block; font-size:0.76rem; color:var(--mist); line-height:1.4; max-width:170px; }
+  .cell-reason{ display:block; font-size:0.76rem; color:var(--mist); line-height:1.4; max-width:200px; }
   .cell-role{ font-size:0.85rem; color:var(--mist); }
   .matrix-note{ font-size:0.85rem; color:var(--mist); margin-top:16px; }
   .matrix-hint{
@@ -275,6 +317,7 @@
     transform:rotate(-2.5deg);
     margin-bottom:12px;
   }
+  .stamp.warn{ border-color:var(--mist); color:var(--mist); background:transparent; }
   .decision p{ color:var(--mist); }
 
   /* ---------- Day in life ---------- */
@@ -340,6 +383,9 @@
     color:var(--mist); max-width:560px; margin:0 auto; line-height:1.6;
   }
 
+  .topic-panel{ display:none; }
+  .topic-panel.active{ display:block; }
+
   @media (max-width:640px){
     .section, .prose-section{ padding:64px 0; }
     .card{ padding:26px; }
@@ -349,26 +395,42 @@
 </head>
 <body>
 
-<a href="#intro" class="skip-link">Skip to content</a>
+<a href="#main-content" class="skip-link">Skip to content</a>
 <div id="progressBar" role="presentation"></div>
 
-<header class="hero">
-  <div class="hero-inner">
+<div class="masthead">
+  <div class="masthead-inner">
     <span class="eyebrow">Case file — how I actually build with AI</span>
-    <h1 class="headline">I stopped comparing AI.<br>I started <span class="accent-word">interviewing</span> them.</h1>
-    <p class="subtitle">After a year of shipping real software with ChatGPT, Claude, Copilot, and Gemini, I stopped asking which one is smartest — and started asking which one I'd actually hire. This is the AI team I'd put my name behind.</p>
-    <div class="hero-meta">
-      <span>12 min read</span>
-      <span>Field notes, not a benchmark</span>
-      <span>Updated July 2026</span>
-    </div>
+    <h1 class="series-title">The AI Team I'd <span class="accent-word">Actually</span> Hire</h1>
+    <p class="series-sub">Every few weeks another model claims the top of some leaderboard. I stopped caring. What matters is who shows up when the deadline's real. Welcome to the ongoing series where I put the AI tools I actually use through the wringer on real day-to-day work — one domain at a time, hired accordingly.</p>
   </div>
-  <div class="scroll-cue"><span class="line" aria-hidden="true"></span>Keep reading</div>
-</header>
+</div>
 
-<main>
+<nav class="topic-switcher" aria-label="Choose a topic">
+  <div class="topic-switcher-inner" role="tablist">
+    <button class="topic-btn" role="tab" id="tab-general" aria-selected="true" aria-controls="topic-general" data-topic="general">General Engineering</button>
+    <button class="topic-btn" role="tab" id="tab-security" aria-selected="false" aria-controls="topic-security" data-topic="security" tabindex="-1">Security Work</button>
+  </div>
+</nav>
 
-  <section id="intro" class="prose-section">
+<main id="main-content">
+
+<!-- ================= TOPIC 1: GENERAL ================= -->
+<article class="topic-panel active" id="topic-general" role="tabpanel" aria-labelledby="tab-general">
+
+  <header class="hero">
+    <div class="hero-inner">
+      <h1 class="headline">I stopped comparing AI.<br>I started <span class="accent-word">interviewing</span> them.</h1>
+      <p class="subtitle">After a year of shipping real software with ChatGPT, Claude, Copilot, and Gemini, I stopped asking which one is smartest — and started asking which one I'd actually hire. This is the AI team I'd put my name behind.</p>
+      <div class="hero-meta">
+        <span>12 min read</span>
+        <span>Field notes, not a benchmark</span>
+        <span>Updated July 2026</span>
+      </div>
+    </div>
+  </header>
+
+  <section id="intro-general" class="prose-section">
     <div class="prose reveal">
       <p>I wasn't looking for another AI. I was looking for <em>THE</em> AI.</p>
       <p>For a while I ran everything through one model, switching only when it let me down — a new benchmark, a friend's recommendation, whatever headline made it sound smarter than the last one. I told myself I'd eventually find the one that did everything well enough that I'd never have to think about the choice again.</p>
@@ -378,7 +440,7 @@
     </div>
   </section>
 
-  <section id="problem" class="prose-section">
+  <section id="problem-general" class="prose-section">
     <div class="prose reveal">
       <span class="eyebrow">The problem</span>
       <h2 class="section-title">Benchmarks don't know what Tuesday looks like</h2>
@@ -389,7 +451,7 @@
     </div>
   </section>
 
-  <section id="candidates" class="section">
+  <section id="candidates-general" class="section">
     <div class="wrap">
       <div class="section-head reveal">
         <span class="section-num">01 — Meet the candidates</span>
@@ -459,7 +521,7 @@
     </div>
   </section>
 
-  <section id="interview" class="prose-section">
+  <section id="interview-general" class="prose-section">
     <div class="prose">
       <div class="section-head reveal">
         <span class="section-num">02 — The interview</span>
@@ -499,7 +561,7 @@
     </div>
   </section>
 
-  <section id="matrix" class="section">
+  <section id="matrix-general" class="section">
     <div class="wrap">
       <div class="section-head reveal">
         <span class="section-num">03 — Capability matrix</span>
@@ -507,9 +569,9 @@
         <p class="lede">Every mark below comes with the one-line reason behind it — no bare scores. Segments are relative to these four candidates only, not an absolute scale.</p>
       </div>
 
-      <!-- <div class="radar-wrap reveal">
-        <canvas id="capabilityRadar" role="img" aria-label="Radar chart comparing ChatGPT, Claude, Copilot, and Gemini across architecture, coding, writing and docs, research, debugging, and productivity"></canvas>
-      </div> -->
+      <div class="radar-wrap reveal">
+        <canvas id="capabilityRadar" role="img" aria-label="Radar chart comparing ChatGPT, Claude, Copilot, and Gemini across six capability categories"></canvas>
+      </div>
 
       <p class="matrix-hint reveal">Scroll sideways to see all four candidates →</p>
 
@@ -629,7 +691,7 @@
     </div>
   </section>
 
-  <section id="decisions" class="section">
+  <section id="decisions-general" class="section">
     <div class="wrap">
       <div class="section-head reveal">
         <span class="section-num">04 — Hiring decisions</span>
@@ -663,7 +725,7 @@
     </div>
   </section>
 
-  <section id="daylife" class="section">
+  <section id="daylife-general" class="section">
     <div class="wrap">
       <div class="section-head reveal">
         <span class="section-num">05 — Real builds, real teams</span>
@@ -706,7 +768,7 @@
     </div>
   </section>
 
-  <section id="twist" class="prose-section twist">
+  <section id="twist-general" class="prose-section twist">
     <div class="prose reveal">
       <span class="eyebrow">The plot twist</span>
       <p>Here's the thing I didn't expect going in: there is no perfect hire.</p>
@@ -716,7 +778,7 @@
     </div>
   </section>
 
-  <section id="beyond" class="section">
+  <section id="beyond-general" class="section">
     <div class="wrap">
       <div class="section-head reveal">
         <span class="section-num">06 — Beyond the LLMs</span>
@@ -763,7 +825,7 @@
     </div>
   </section>
 
-  <section id="conclusion" class="prose-section outro">
+  <section id="conclusion-general" class="prose-section outro">
     <div class="prose reveal">
       <span class="eyebrow">Conclusion</span>
       <p>So — which AI is the best?</p>
@@ -774,17 +836,327 @@
     </div>
   </section>
 
-</main>
+  <footer>
+    <p>These are field notes from one engineer's workflow, not a lab benchmark — every score above comes with its reasoning, but your stack, your projects, and your taste will shift the roster. Written from hands-on use, current as of July 2026.</p>
+  </footer>
 
-<footer>
-  <p>These are field notes from one engineer's workflow, not a lab benchmark — every score above comes with its reasoning, but your stack, your projects, and your taste will shift the roster. Written from hands-on use, current as of July 2026.</p>
-</footer>
+</article>
+
+<!-- ================= TOPIC 2: SECURITY ================= -->
+<article class="topic-panel" id="topic-security" role="tabpanel" aria-labelledby="tab-security">
+
+  <header class="hero">
+    <div class="hero-inner">
+      <h1 class="headline">This is the one interview where I <span class="accent-word">weighted the guardrails</span> score higher than everything else.</h1>
+      <p class="subtitle">I put Claude, Claude Code, GitHub Copilot, Gemini, and Google AI Studio through real security work — threat modeling, remediation, log triage. The scores matter less than one question: where does each one's confidence outrun what it actually knows?</p>
+      <div class="hero-meta">
+        <span>11 min read</span>
+        <span>Field notes, not a benchmark</span>
+        <span>Updated July 2026</span>
+      </div>
+    </div>
+  </header>
+
+  <section id="intro-security" class="prose-section">
+    <div class="prose reveal">
+      <p>Every other post in this series, I've hired for output. Who writes the cleanest code, who drafts the whitepaper I don't have to rewrite, who survives a thousand-page document without losing the thread.</p>
+      <p>Security work doesn't let you hire that way. A wrong answer about your auth flow doesn't cost you an afternoon of editing — it costs you an incident. So for this round, I didn't just score these tools on whether they were <em>right</em>. I scored them on whether they knew when they might be <em>wrong</em>, and said so.</p>
+      <p>I tested three of the tools I actually use for this kind of work: Claude and Claude Code, GitHub Copilot, and Gemini alongside Google AI Studio. Same project, same threat-model exercise, same request to draft remediation code afterward.</p>
+      <p class="hl">This is the one post in the series where the Security &amp; Guardrails panel isn't one score among many. It's the deciding one.</p>
+    </div>
+  </section>
+
+  <section id="problem-security" class="prose-section">
+    <div class="prose reveal">
+      <span class="eyebrow">The problem</span>
+      <h2 class="section-title">"Confident" and "correct" are not the same word</h2>
+      <p style="margin-top:20px;">Brainstorming a threat model out loud is low-risk territory. You're thinking in public, throwing out attack surfaces, seeing what sticks. Nobody gets hurt if the AI's third idea is a stretch.</p>
+      <p>The moment shifts the second the output starts looking like an actual security decision — "this input is safe to trust," "this endpoint doesn't need rate limiting," "this is the fix, ship it." That's where a human sign-off stops being optional, and it's exactly the moment where a fluent, well-formatted answer can do the most damage if it's wrong.</p>
+      <p>So the question I actually cared about testing wasn't "which one knows more about security." It was: <span class="hl">does this tool ever pump the brakes on its own answer?</span> Does it say "I'm not sure, get this reviewed" — or does it hand you a confident paragraph and let you find out the hard way?</p>
+    </div>
+  </section>
+
+  <section id="candidates-security" class="section">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="section-num">01 — Meet the candidates</span>
+        <h2 class="section-title">Three candidates, same interview</h2>
+        <p class="lede">Claude and Gemini are really pairs here — the conversational model and its more agentic sibling — because that's how I actually use them on security work. Copilot stands on its own; it's built to live in the editor, not to carry a conversation.</p>
+      </div>
+
+      <div class="candidates-grid">
+
+        <div class="card reveal">
+          <span class="card-id">SEC-01 / Applicant</span>
+          <h3>Claude &amp; Claude Code</h3>
+          <p class="role">Suggested role — Security-aware reviewer, not final sign-off</p>
+          <p class="bio">Claude is who I talk a threat model through before I've written a line of code. Claude Code is the one I let near the actual diff — it ships with a security-review skill that checks pending changes for the boring, expensive mistakes: hardcoded secrets, missing auth checks, injection points. What stood out in this round wasn't cleverness. It was how often it added a caveat I didn't ask for.</p>
+          <p class="field-label">Strengths</p>
+          <div class="tag-row"><span class="tag">Threat modeling</span><span class="tag">Refuses exploit/malware requests outright</span><span class="tag">Built-in diff security review</span><span class="tag">Says "verify this" unprompted</span><span class="tag">Rechecks itself when told to in CLAUDE.md</span></div>
+          <p class="field-label">Weaknesses</p>
+          <p class="note">Conservative to a fault. On a couple of borderline requests — reasonable pentest-adjacent questions a security engineer would consider routine — it over-hedged or declined outright, which meant more back-and-forth to get to a usable answer.</p>
+          <p class="field-label">Best for</p>
+          <p class="note">Talking through a threat model, reviewing a diff before merge, drafting a remediation plan that a human then actually signs off on.</p>
+          <p class="position">Ideal team position: <strong>Security-aware reviewer</strong> — the one you want reading the PR, not the one alone with the keys.</p>
+        </div>
+
+        <div class="card reveal">
+          <span class="card-id">SEC-02 / Applicant</span>
+          <h3>GitHub Copilot</h3>
+          <p class="role">Suggested role — Fast fixer for known issues</p>
+          <p class="bio">Copilot doesn't do the threat-model conversation — it's not built for it. But wire it into a repo with GitHub Advanced Security running, and its Autofix suggestions against CodeQL alerts are fast, and often good enough to accept with a light edit. It's reactive by design: it responds to what's already been flagged, it doesn't go looking for what isn't.</p>
+          <p class="field-label">Strengths</p>
+          <div class="tag-row"><span class="tag">CodeQL / Autofix integration</span><span class="tag">Fast fixes for known vulnerability patterns</span><span class="tag">Stays in the editor, no context switch</span></div>
+          <p class="field-label">Weaknesses</p>
+          <p class="note">Doesn't hedge. Suggestions read the same whether it's confident or guessing — there's no version of an inline completion that says "have a human check this."</p>
+          <p class="field-label">Best for</p>
+          <p class="note">Clearing a backlog of known, already-flagged vulnerability alerts fast, without leaving the file.</p>
+          <p class="position">Ideal team position: <strong>Fast fixer</strong> — good at what's already been found, not the one you'd trust to go looking.</p>
+        </div>
+
+        <div class="card reveal">
+          <span class="card-id">SEC-03 / Applicant</span>
+          <h3>Gemini &amp; Google AI Studio</h3>
+          <p class="role">Suggested role — Fast recon, not final sign-off</p>
+          <p class="bio">Gemini in the consumer app carries Google's default safety scaffolding. Google AI Studio doesn't — it's a raw model playground where safety thresholds are something <em>you</em> configure, not something that ships pre-tightened. Both were fast and comfortable chewing through a big pile of logs and code to sketch a threat surface. Neither one, in my sessions, reliably told me when it was guessing.</p>
+          <p class="field-label">Strengths</p>
+          <div class="tag-row"><span class="tag">Fast first-pass recon</span><span class="tag">Handles large log/code dumps well</span><span class="tag">Quick threat-surface synthesis</span></div>
+          <p class="field-label">Weaknesses</p>
+          <p class="note">Confidence didn't reliably drop when it should have. Across this round, it rarely volunteered "have a human verify this" the way Claude did by default — and in AI Studio specifically, the guardrails are only as tight as whatever you dial in yourself, which puts more of the judgment call back on you.</p>
+          <p class="field-label">Best for</p>
+          <p class="note">Fast triage over a huge log dump after something's already gone wrong, or a first-pass outline of a threat model you'll tighten up elsewhere.</p>
+          <p class="position">Ideal team position: <strong>Fast recon</strong> — first eyes on the pile, not the last word on what's safe.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="interview-security" class="prose-section">
+    <div class="prose">
+      <div class="section-head reveal">
+        <span class="section-num">02 — The interview</span>
+        <h2 class="section-title">Five rounds, one that mattered most</h2>
+        <p class="lede">Same exercise across all three: brainstorm a threat model for a new feature, triage a pile of access logs, draft remediation code, respond to being told explicitly what to recheck for, and — the round that actually decided this post — watch for whether any of them flagged their own uncertainty.</p>
+      </div>
+
+      <div class="interview-item reveal">
+        <span class="interview-round">Round 01 — Threat-model brainstorming</span>
+        <h4>Result: <span class="winner">Close, edge to Claude</span></h4>
+        <p>Low-risk territory, and this is really a two-horse race — Copilot isn't built for open-ended conversation like this and mostly deferred back to asking for code context. Between the other two, Claude structured the exercise more like an actual threat-modeling session (assets, actors, attack surfaces, in that order); Gemini moved faster and threw a wider net. <span class="hl">Neither of the conversational two needs a leash for this part.</span></p>
+      </div>
+
+      <div class="interview-item reveal">
+        <span class="interview-round">Round 02 — Log &amp; code triage at volume</span>
+        <h4>Result: <span class="winner">Gemini / AI Studio</span></h4>
+        <p>Handed a large pile of access logs and a sprawling codebase, Gemini's long context held up well — it pulled together a coherent first-pass picture of what looked anomalous without losing the thread. Copilot isn't really in this race either; it's scoped to what's open in the editor, not a document pile. This is the round where Gemini's speed is a genuine advantage, not a shortcut around rigor.</p>
+      </div>
+
+      <div class="interview-item reveal">
+        <span class="interview-round">Round 03 — Drafting remediation code</span>
+        <h4>Result: <span class="winner">Split — Copilot for known issues, Claude Code for judgment calls</span></h4>
+        <p>For clearing already-flagged CodeQL alerts, Copilot's Autofix was the fastest path from alert to accepted PR, no contest. But for a fix that required actual judgment — deciding whether an input was trustworthy, not just pattern-matching a known CVE — Claude Code's diff-level security review earned its keep: it flagged an auth-check gap in its own suggested patch before I did. <span class="hl">Different jobs, different winner.</span></p>
+      </div>
+
+      <div class="interview-item reveal">
+        <span class="interview-round">Round 04 — Does it get better when you tell it what to recheck for?</span>
+        <h4>Result: <span class="winner">Claude &amp; Claude Code, by a wide margin</span></h4>
+        <p>All three support some form of persistent custom instructions — CLAUDE.md for Claude Code, a repo-level instructions file for Copilot, a system prompt in AI Studio. I tested the same idea on all three: explicitly instruct it to recheck its own output for common vulnerability classes before calling something done. Claude's behavior shifted the most — with that instruction living in CLAUDE.md, it visibly started re-scanning its own diffs a second time, catching a couple of things it missed on the first pass. Copilot's repo instructions nudged its suggestions slightly but didn't add anything like a visible recheck step. Gemini's system prompt helped, but less consistently. <span class="hl">This one's based on my own repeated use, not a one-off test — the gap held up over time.</span></p>
+      </div>
+
+      <div class="interview-item reveal">
+        <span class="interview-round">Round 05 — Security &amp; guardrails (the deciding panel)</span>
+        <h4>Result: <span class="winner">Claude &amp; Claude Code</span></h4>
+        <p>This is the round I weighted hardest. Across the exercise, Claude and Claude Code repeatedly qualified their own output — "this needs a security engineer to confirm," "I could be missing context here," refusing outright when a request drifted toward exploit-writing regardless of how it was framed. Gemini and AI Studio produced answers that read just as fluently, but rarely paused to flag their own uncertainty the same way. Copilot doesn't really compete here at all — an inline suggestion has no room to hedge, confident or not. <span class="hl">Fluent and correct aren't the same thing, and only one of these three consistently reminded me of that.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="matrix-security" class="section">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="section-num">03 — Capability matrix</span>
+        <h2 class="section-title">The scorecard — guardrails weighted, not just counted</h2>
+        <p class="lede">Every mark comes with the reason behind it. The Security &amp; Guardrails row is highlighted on purpose — for this post, it's not one row among eight, it's the tie-breaker.</p>
+      </div>
+
+      <div class="chart-wrap reveal">
+        <canvas id="securityBar" role="img" aria-label="Bar chart comparing Claude and Claude Code, GitHub Copilot, and Gemini and Google AI Studio across six security-related categories"></canvas>
+      </div>
+
+      <p class="matrix-hint reveal">Scroll sideways to see all three →</p>
+
+      <div class="matrix-scroll reveal">
+        <table class="matrix">
+          <thead>
+            <tr>
+              <th class="cat-th">Category</th>
+              <th>Claude / Claude Code</th>
+              <th>GitHub Copilot</th>
+              <th>Gemini / AI Studio</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td class="cat-label">Threat Modeling</td>
+              <td><span class="signal">[[SIGNAL:4]]</span><span class="cell-reason">Structured, methodical, a bit slower</span></td>
+              <td><span class="signal">[[SIGNAL:1]]</span><span class="cell-reason">Not built for open-ended dialogue</span></td>
+              <td><span class="signal">[[SIGNAL:4]]</span><span class="cell-reason">Fast, wider net, less structured</span></td>
+            </tr>
+
+            <tr>
+              <td class="cat-label">Log / Code Triage at Volume</td>
+              <td><span class="signal">[[SIGNAL:3]]</span><span class="cell-reason">Careful, effective context ceiling lower</span></td>
+              <td><span class="signal">[[SIGNAL:2]]</span><span class="cell-reason">Scoped to the open file, not a document pile</span></td>
+              <td><span class="signal">[[SIGNAL:5]]</span><span class="cell-reason">Held the thread across a large dump</span></td>
+            </tr>
+
+            <tr>
+              <td class="cat-label">Remediation Code</td>
+              <td><span class="signal">[[SIGNAL:4]]</span><span class="cell-reason">Caught a gap in its own suggested patch</span></td>
+              <td><span class="signal">[[SIGNAL:5]]</span><span class="cell-reason">Fastest path from CodeQL alert to accepted fix</span></td>
+              <td><span class="signal">[[SIGNAL:3]]</span><span class="cell-reason">Usable draft, needed more manual review</span></td>
+            </tr>
+
+            <tr>
+              <td class="cat-label">Instruction-Steerability (CLAUDE.md, etc.)</td>
+              <td><span class="signal">[[SIGNAL:5]]</span><span class="cell-reason">Visibly added a recheck step once instructed</span></td>
+              <td><span class="signal">[[SIGNAL:2]]</span><span class="cell-reason">Slight nudge, no visible recheck behavior</span></td>
+              <td><span class="signal">[[SIGNAL:3]]</span><span class="cell-reason">Helped, less consistently</span></td>
+            </tr>
+
+            <tr class="priority">
+              <td class="cat-label">Security &amp; Guardrails</td>
+              <td><span class="signal">[[SIGNAL:5]]</span><span class="cell-reason">Flagged its own uncertainty unprompted, repeatedly</span></td>
+              <td><span class="signal">[[SIGNAL:2]]</span><span class="cell-reason">Inline suggestions have no real room to hedge</span></td>
+              <td><span class="signal">[[SIGNAL:2]]</span><span class="cell-reason">Rarely volunteered "verify this" — AI Studio's guardrails are manual to begin with</span></td>
+            </tr>
+
+            <tr>
+              <td class="cat-label">Refusal Behavior on Exploit Requests</td>
+              <td><span class="signal">[[SIGNAL:5]]</span><span class="cell-reason">Declined regardless of framing, no exceptions seen</span></td>
+              <td><span class="signal">[[SIGNAL:3]]</span><span class="cell-reason">Content filters catch some patterns, inconsistent on novel ones</span></td>
+              <td><span class="signal">[[SIGNAL:3]]</span><span class="cell-reason">More inconsistent, more dependent on configured safety settings</span></td>
+            </tr>
+
+            <tr>
+              <td class="cat-label">Ideal Position</td>
+              <td class="cell-role">Security-aware reviewer</td>
+              <td class="cell-role">Fast fixer for known issues</td>
+              <td class="cell-role">Fast recon</td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+      <p class="matrix-note reveal">Copilot wins Remediation Code outright, and Gemini wins Log/Code Triage. <span class="hl">The Guardrails row is still what decided this post</span> — speed and coverage matter less than knowing when to stop and say "check this."</p>
+    </div>
+  </section>
+
+  <section id="decisions-security" class="section">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="section-num">04 — Hiring decisions</span>
+        <h2 class="section-title">Real scenarios, real picks</h2>
+        <p class="lede">None of these are "ship it and walk away" decisions. Every remediation step below still gets a human security sign-off before it touches production — that part isn't optional for either candidate.</p>
+      </div>
+
+      <div class="decision reveal">
+        <p class="q">If I needed to brainstorm a threat model for a new feature...</p>
+        <span class="stamp">Hired: Either — start with whichever's open</span>
+        <p>This is genuinely low-risk, exploratory work. Claude gives you more structure, Gemini gives you more speed and breadth. Pick based on which one you'll actually finish the exercise with.</p>
+      </div>
+
+      <div class="decision reveal">
+        <p class="q">If I needed a first-pass triage of a huge access-log dump after something looked wrong...</p>
+        <span class="stamp">Hired: Gemini / AI Studio</span>
+        <p>This is exactly the "throw the pile at it and see what surfaces" job its long context is built for. It's a first pass, not a verdict — but as a first pass, it's the faster, more capable read.</p>
+      </div>
+
+      <div class="decision reveal">
+        <p class="q">If I needed to clear a backlog of known, already-flagged CodeQL alerts...</p>
+        <span class="stamp">Hired: GitHub Copilot</span>
+        <p>These aren't judgment calls, they're known patterns with known fixes. Autofix gets you from alert to accepted PR fastest, without leaving the editor. Overkill to bring in a conversation for this.</p>
+      </div>
+
+      <div class="decision reveal">
+        <p class="q">If I needed someone to draft a remediation PR that requires actual judgment...</p>
+        <span class="stamp">Hired: Claude Code</span>
+        <p>The diff-level security review, and the fact that it flagged a gap in its own suggested fix, is exactly the behavior you want from something touching production code on a case that isn't just pattern-matching. A human still reviews and merges it — but it's the one that caught its own mistake before I had to.</p>
+      </div>
+
+      <div class="decision reveal">
+        <p class="q">If the question is "can I trust this answer without checking it"...</p>
+        <span class="stamp warn">Hired: Neither — that's the whole point</span>
+        <p>This is the scenario that actually mattered for this post. Claude came closer to earning trust by repeatedly telling me when it wasn't sure, especially once CLAUDE.md told it what to recheck. Gemini, AI Studio, and Copilot didn't hedge as consistently — for very different reasons. None of these answers are a substitute for a security engineer's sign-off on anything that ships.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="twist-security" class="prose-section twist">
+    <div class="prose reveal">
+      <span class="eyebrow">The plot twist</span>
+      <p>Going into this, I expected the interesting finding to be about capability — who spots the vulnerability, who writes the cleaner fix. That's not what stuck with me.</p>
+      <p>What stuck with me is that <span class="hl">fluency is not the same signal as correctness</span>, and only one of the three kept reminding me of that on its own. Claude and Claude Code said "I'm not sure, verify this" often enough that it started to feel like part of the product, not a disclaimer bolted on. Gemini and AI Studio rarely did, and Copilot's format doesn't really leave room to — an inline suggestion just sits there, confident or not.</p>
+      <p class="pull">A tool that never once says "I'm not sure" isn't more capable. It's just quieter about the risk.</p>
+      <p>That's a red flag worth naming, not a footnote. In every other domain in this series, confidence read as competence. In security, it's the opposite — the tool I trust more is the one that's willing to sound less sure of itself. The second finding surprised me almost as much: how much of that gap was mine to close. Telling Claude Code explicitly, in CLAUDE.md, what to recheck for widened its lead over the other two more than anything else I tested. <span class="hl">The guardrail isn't just in the model. Some of it is in whether you bothered to write it down.</span></p>
+    </div>
+  </section>
+
+  <section id="beyond-security" class="section">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="section-num">05 — Beyond the LLMs</span>
+        <h2 class="section-title">The rest of the security bench</h2>
+        <p class="lede">General-purpose AI is one input into a security workflow, not the whole thing. A few specialists still earn a seat.</p>
+      </div>
+
+      <div class="beyond-grid reveal">
+        <div class="beyond-group">
+          <h5>Static analysis</h5>
+          <ul><li><strong>Semgrep</strong><span>For rule-based scanning that doesn't depend on an LLM's mood that day.</span></li></ul>
+        </div>
+        <div class="beyond-group">
+          <h5>Dependency &amp; secrets scanning</h5>
+          <ul><li><strong>Snyk</strong><span>For the vulnerable-package problem no chat interface should be your only defense against.</span></li></ul>
+        </div>
+        <div class="beyond-group">
+          <h5>Code-hosting native scanning</h5>
+          <ul><li><strong>GitHub Advanced Security</strong><span>For catching secrets and known CVEs before a PR merges, independent of any one model's judgment.</span></li></ul>
+        </div>
+        <div class="beyond-group">
+          <h5>Cloud posture</h5>
+          <ul><li><strong>Wiz</strong><span>For the infrastructure-level blind spots a code-focused AI won't see.</span></li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="conclusion-security" class="prose-section outro">
+    <div class="prose reveal">
+      <span class="eyebrow">Conclusion</span>
+      <p>So — which one would I hire for security work?</p>
+      <p>Wrong question again, same as every other post in this series. The honest answer is that I'd want all three in the room, doing different parts of the job — Gemini's speed for the first pass, Copilot's Autofix for the known backlog, Claude's caution for anything that needs a real judgment call. What I wouldn't do is let any of them make the actual call alone.</p>
+      <p>These are field notes from one engineer's workflow on one project, not a security audit — your mileage, your threat model, and your risk tolerance will all shift this. <span class="hl">Interview them yourself, write down what you want rechecked, and pay closer attention to the moments they hedge than the moments they don't.</span></p>
+      <p class="final">The future isn't an AI that's always <span class="accent-word">confident</span>.<br>It's one that knows when to <span class="accent-word">say so</span>.</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>These are field notes from one engineer's workflow, not a formal security audit — every score above comes with its reasoning, but no output here should be treated as a substitute for a human security review before anything ships. Written from hands-on use, current as of July 2026.</p>
+  </footer>
+
+</article>
+
+</main>
 
 <script>
 (function () {
   "use strict";
 
   var prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var chartsInit = { general: false, security: false };
 
   // Scroll progress bar
   var progressBar = document.getElementById("progressBar");
@@ -798,9 +1170,9 @@
   updateProgress();
 
   // Scroll reveal
-  var revealEls = document.querySelectorAll(".reveal");
+  var io = null;
   if (!prefersReducedMotion && "IntersectionObserver" in window) {
-    var io = new IntersectionObserver(
+    io = new IntersectionObserver(
       function (entries) {
         entries.forEach(function (entry) {
           if (entry.isIntersecting) {
@@ -811,33 +1183,38 @@
       },
       { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
     );
-    revealEls.forEach(function (el) {
-      io.observe(el);
-    });
-  } else {
-    revealEls.forEach(function (el) {
-      el.classList.add("in-view");
-    });
+  }
+  function observeReveals(scope) {
+    var revealEls = scope.querySelectorAll(".reveal");
+    if (io) {
+      revealEls.forEach(function (el) { io.observe(el); });
+    } else {
+      revealEls.forEach(function (el) { el.classList.add("in-view"); });
+    }
   }
 
   // Render signal-bar placeholders as accessible tick indicators
-  document.querySelectorAll(".signal").forEach(function (el) {
-    var match = el.textContent.match(/\[\[SIGNAL:(\d)\]\]/);
-    var score = match ? parseInt(match[1], 10) : 0;
-    el.textContent = "";
-    el.setAttribute("role", "img");
-    el.setAttribute("aria-label", score + " out of 5");
-    for (var i = 1; i <= 5; i++) {
-      var tick = document.createElement("i");
-      if (i <= score) tick.className = "filled";
-      el.appendChild(tick);
-    }
-  });
+  function renderSignals(scope) {
+    scope.querySelectorAll(".signal").forEach(function (el) {
+      var match = el.textContent.match(/\[\[SIGNAL:(\d)\]\]/);
+      if (!match) return;
+      var score = parseInt(match[1], 10);
+      el.textContent = "";
+      el.setAttribute("role", "img");
+      el.setAttribute("aria-label", score + " out of 5");
+      for (var i = 1; i <= 5; i++) {
+        var tick = document.createElement("i");
+        if (i <= score) tick.className = "filled";
+        el.appendChild(tick);
+      }
+    });
+  }
 
-  // Capability radar chart
-  function initChart() {
+  // Capability radar chart (general topic)
+  function initRadar() {
     var canvas = document.getElementById("capabilityRadar");
-    if (!canvas || typeof Chart === "undefined") return;
+    if (!canvas || typeof Chart === "undefined" || chartsInit.general) return;
+    chartsInit.general = true;
     var ctx = canvas.getContext("2d");
     var gridColor = "rgba(236,237,238,0.08)";
     var labelColor = "#ECEDEE";
@@ -850,49 +1227,10 @@
       data: {
         labels: ["Architecture", "Coding", "Writing & Docs", "Research", "Debugging", "Productivity"],
         datasets: [
-          {
-            label: "ChatGPT",
-            data: [5, 4, 3, 4, 4, 4],
-            borderColor: "#D6A24C",
-            backgroundColor: "rgba(214,162,76,0.08)",
-            pointBackgroundColor: "#D6A24C",
-            borderWidth: 2,
-            pointRadius: 3,
-            fill: false
-          },
-          {
-            label: "Claude",
-            data: [4, 3, 5, 3, 3, 3],
-            borderColor: "#ECEDEE",
-            backgroundColor: "rgba(236,237,238,0.05)",
-            pointBackgroundColor: "#ECEDEE",
-            borderWidth: 2,
-            borderDash: [6, 3],
-            pointRadius: 3,
-            fill: false
-          },
-          {
-            label: "Copilot",
-            data: [2, 5, 1, 2, 5, 5],
-            borderColor: "#9A9DA6",
-            backgroundColor: "rgba(154,157,166,0.05)",
-            pointBackgroundColor: "#9A9DA6",
-            borderWidth: 2,
-            borderDash: [2, 2],
-            pointRadius: 3,
-            fill: false
-          },
-          {
-            label: "Gemini",
-            data: [3, 3, 3, 5, 3, 4],
-            borderColor: "#6B7280",
-            backgroundColor: "rgba(107,114,128,0.05)",
-            pointBackgroundColor: "#6B7280",
-            borderWidth: 2,
-            borderDash: [1, 3],
-            pointRadius: 3,
-            fill: false
-          }
+          { label: "ChatGPT", data: [5, 4, 3, 4, 4, 4], borderColor: "#D6A24C", backgroundColor: "rgba(214,162,76,0.08)", pointBackgroundColor: "#D6A24C", borderWidth: 2, pointRadius: 3, fill: false },
+          { label: "Claude", data: [4, 3, 5, 3, 3, 3], borderColor: "#ECEDEE", backgroundColor: "rgba(236,237,238,0.05)", pointBackgroundColor: "#ECEDEE", borderWidth: 2, borderDash: [6, 3], pointRadius: 3, fill: false },
+          { label: "Copilot", data: [2, 5, 1, 2, 5, 5], borderColor: "#9A9DA6", backgroundColor: "rgba(154,157,166,0.05)", pointBackgroundColor: "#9A9DA6", borderWidth: 2, borderDash: [2, 2], pointRadius: 3, fill: false },
+          { label: "Gemini", data: [3, 3, 3, 5, 3, 4], borderColor: "#6B7280", backgroundColor: "rgba(107,114,128,0.05)", pointBackgroundColor: "#6B7280", borderWidth: 2, borderDash: [1, 3], pointRadius: 3, fill: false }
         ]
       },
       options: {
@@ -903,43 +1241,94 @@
           r: {
             angleLines: { color: gridColor },
             grid: { color: gridColor },
-            pointLabels: {
-              color: labelColor,
-              font: { family: "'Space Grotesk', sans-serif", size: 11 }
-            },
+            pointLabels: { color: labelColor, font: { family: "'Space Grotesk', sans-serif", size: 11 } },
             ticks: { display: false, stepSize: 1 },
             suggestedMin: 0,
             suggestedMax: 5
           }
         },
         plugins: {
-          legend: {
-            position: "bottom",
-            labels: {
-              color: mutedColor,
-              usePointStyle: true,
-              pointStyle: "line",
-              font: { family: "'JetBrains Mono', monospace", size: 11 },
-              padding: 16
-            }
-          },
-          tooltip: {
-            backgroundColor: "#16171A",
-            titleColor: "#ECEDEE",
-            bodyColor: "#9A9DA6",
-            borderColor: "#26282C",
-            borderWidth: 1,
-            padding: 10
-          }
+          legend: { position: "bottom", labels: { color: mutedColor, usePointStyle: true, pointStyle: "line", font: { family: "'JetBrains Mono', monospace", size: 11 }, padding: 16 } },
+          tooltip: { backgroundColor: "#16171A", titleColor: "#ECEDEE", bodyColor: "#9A9DA6", borderColor: "#26282C", borderWidth: 1, padding: 10 }
         }
       }
     });
   }
 
+  // Security bar chart (security topic)
+  function initSecurityBar() {
+    var canvas = document.getElementById("securityBar");
+    if (!canvas || typeof Chart === "undefined" || chartsInit.security) return;
+    chartsInit.security = true;
+    var ctx = canvas.getContext("2d");
+    var gridColor = "rgba(236,237,238,0.08)";
+    var mutedColor = "#9A9DA6";
+
+    Chart.defaults.font.family = "'Inter', sans-serif";
+
+    new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: ["Threat Modeling", "Log/Code Triage", "Remediation Code", "Instruction-Steerability", "Guardrails", "Refusal Behavior"],
+        datasets: [
+          { label: "Claude / Claude Code", data: [4, 3, 4, 5, 5, 5], backgroundColor: "#D6A24C", borderRadius: 4, maxBarThickness: 22 },
+          { label: "GitHub Copilot", data: [1, 2, 5, 2, 2, 3], backgroundColor: "#ECEDEE", borderRadius: 4, maxBarThickness: 22 },
+          { label: "Gemini / AI Studio", data: [4, 5, 3, 3, 2, 3], backgroundColor: "#9A9DA6", borderRadius: 4, maxBarThickness: 22 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: prefersReducedMotion ? false : { duration: 700 },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: mutedColor, font: { family: "'JetBrains Mono', monospace", size: 10 } } },
+          y: { beginAtZero: true, max: 5, grid: { color: gridColor }, ticks: { color: mutedColor, stepSize: 1 } }
+        },
+        plugins: {
+          legend: { position: "bottom", labels: { color: mutedColor, usePointStyle: true, pointStyle: "rect", font: { family: "'JetBrains Mono', monospace", size: 11 }, padding: 16 } },
+          tooltip: { backgroundColor: "#16171A", titleColor: "#ECEDEE", bodyColor: "#9A9DA6", borderColor: "#26282C", borderWidth: 1, padding: 10 }
+        }
+      }
+    });
+  }
+
+  // Topic switcher
+  var tabs = document.querySelectorAll(".topic-btn");
+  var panels = { general: document.getElementById("topic-general"), security: document.getElementById("topic-security") };
+
+  function activateTopic(name) {
+    Object.keys(panels).forEach(function (key) {
+      var isActive = key === name;
+      panels[key].classList.toggle("active", isActive);
+    });
+    tabs.forEach(function (btn) {
+      var selected = btn.getAttribute("data-topic") === name;
+      btn.setAttribute("aria-selected", selected ? "true" : "false");
+      btn.tabIndex = selected ? 0 : -1;
+    });
+    observeReveals(panels[name]);
+    renderSignals(panels[name]);
+    if (name === "general") initRadar();
+    if (name === "security") initSecurityBar();
+    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
+  }
+
+  tabs.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      activateTopic(btn.getAttribute("data-topic"));
+    });
+  });
+
+  function boot() {
+    renderSignals(panels.general);
+    observeReveals(panels.general);
+    initRadar();
+  }
+
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initChart);
+    document.addEventListener("DOMContentLoaded", boot);
   } else {
-    initChart();
+    boot();
   }
 })();
 </script>
